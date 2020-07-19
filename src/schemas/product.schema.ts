@@ -15,6 +15,12 @@ export class Product extends Document {
     price: number;
 
     @Prop()
+    sale: boolean;
+
+    @Prop()
+    salePrice: number;
+
+    @Prop()
     description: string;
 
     @Prop()
@@ -28,6 +34,9 @@ export class Product extends Document {
 
     @Prop()
     availability: boolean;
+
+    @Prop()
+    images: [];
 
 }
 

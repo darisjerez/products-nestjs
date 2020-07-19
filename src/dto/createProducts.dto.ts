@@ -1,5 +1,6 @@
 
-import { IsNotEmpty, IsNumber, IsBoolean, IsString, MinLength, MaxLength } from "class-validator";
+import { IsNotEmpty, IsBoolean, IsString, MinLength, MaxLength, IsInt, ValidateIf, IsArray } from "class-validator";
+
 
 
 export class CreateProductsDto {
@@ -11,8 +12,17 @@ export class CreateProductsDto {
     title: string;
 
     @IsNotEmpty()
-    @IsNumber()
+    @IsInt()
     price: number;
+
+    @IsNotEmpty()
+    @IsBoolean()
+    sale: boolean;
+    
+    @ValidateIf(props => props.sale === true)
+    @IsNotEmpty()
+    @IsInt()
+    salePrice: number;
 
     @IsNotEmpty()
     @MinLength(30)
@@ -27,11 +37,15 @@ export class CreateProductsDto {
     category: string;
 
     @IsNotEmpty()
-    @IsNumber()
+    @IsInt()
     quantity: number;
 
+    @ValidateIf(props => props.quantity > 0)
     @IsNotEmpty()
     @IsBoolean()
     availability: boolean;
 
+    @IsNotEmpty()
+    @IsArray()
+    images: [];
 }
