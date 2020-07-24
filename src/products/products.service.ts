@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Product } from 'src/schemas/product.schema';
 import { Model } from 'mongoose';
 import { CreateProductsDto } from '../dto/createProducts.dto';
+import { SearchCriteriaDto } from '../dto/searchCriteria.dto';
 
 @Injectable()
 export class ProductsService {
@@ -13,22 +14,26 @@ export class ProductsService {
         return await createdProduct.save();
     }
 
-    async findAllProducts(): Promise<Product[]>{
-        return await this.ProductModel.find().exec();
+    async findAllProducts(filterDto: SearchCriteriaDto): Promise<Product[]>{
+        const { search } = filterDto;
+        const products = await this.ProductModel.find().exec();
+        if(search){
+           if(products.filter(product => product.title.includes(search)).length > 0){
+               return products.filter(product => product.title.includes(search));
+           }else{
+            throw new NotFoundException(`Not results found on ${search}`);
+           }
+        } else{
+            return products;
+        }         
     }
 
-    async getProductById(id: string):Promise<Product>{
-        
-        const products = await this.findAllProducts();
-
-        const foundProduct = products.find(product => product._id == id);
-
-        if (!foundProduct) {
-            throw new NotFoundException(`Product with id ${id} was not found`);  
+    async getProductById(id: string):Promise<Product>{    
+        try {
+            return await this.ProductModel.findOne({ _id: id })
+        } catch (error) {  
+            throw new NotFoundException(`Product with id ${id} was not found`);
         }
-
-        return foundProduct;
-
     }
 
     async editProduct(id: string, createProductDto: CreateProductsDto):Promise<Product>{
