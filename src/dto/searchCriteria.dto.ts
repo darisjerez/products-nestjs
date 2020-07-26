@@ -7,4 +7,14 @@ export class SearchCriteriaDto {
         @IsNotEmpty()
         @IsString()
         search: string;
+
+        @IsOptional()
+        @IsNotEmpty()
+        @IsString()
+        freeShipping: string;
+
+        @IsOptional()
+        @IsNotEmpty()
+        @IsString()
+        sale: boolean;
 }

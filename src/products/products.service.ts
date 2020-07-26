@@ -4,6 +4,7 @@ import { Product } from 'src/schemas/product.schema';
 import { Model } from 'mongoose';
 import { CreateProductsDto } from '../dto/createProducts.dto';
 import { SearchCriteriaDto } from '../dto/searchCriteria.dto';
+import { Criteria } from './creteria.enum';
 
 @Injectable()
 export class ProductsService {
@@ -15,17 +16,38 @@ export class ProductsService {
     }
 
     async findAllProducts(filterDto: SearchCriteriaDto): Promise<Product[]>{
-        const { search } = filterDto;
+        const { search, freeShipping, sale } = filterDto;
         const products = await this.ProductModel.find().exec();
+        let filteredProducts = [];
+
         if(search){
            if(products.filter(product => product.title.includes(search)).length > 0){
-               return products.filter(product => product.title.includes(search));
+               filteredProducts = products.filter(product => product.title.includes(search));
+               
            }else{
             throw new NotFoundException(`Not results found on ${search}`);
            }
         } else{
             return products;
-        }         
+        }
+        if(freeShipping){
+            if(filteredProducts.filter(product => String(product.freeShipping) === Criteria.freeShipping).length > 0){
+                filteredProducts = [ ...products.filter(product => String(product.freeShipping) === Criteria.freeShipping) ];
+                console.log(filteredProducts);
+                return filteredProducts;
+            }else{
+             throw new NotFoundException(`Not results found on ${search} with free shipping`);
+            }
+        }else if(sale){
+            if(filteredProducts.filter(product => String(product.sale) === Criteria.sale).length > 0){
+                filteredProducts = [ ...products.filter(product => String(product.sale) === Criteria.sale) ];
+                console.log(filteredProducts);
+                return filteredProducts;
+            }else{
+             throw new NotFoundException(`Not results found for ${search} on sale`);
+            }
+        }   
+        
     }
 
     async getProductById(id: string):Promise<Product>{    
