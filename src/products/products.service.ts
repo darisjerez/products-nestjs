@@ -18,36 +18,34 @@ export class ProductsService {
     async findAllProducts(filterDto: SearchCriteriaDto): Promise<Product[]>{
         const { search, freeShipping, sale } = filterDto;
         const products = await this.ProductModel.find().exec();
-        let filteredProducts = [];
-
+        
         if(search){
            if(products.filter(product => product.title.includes(search)).length > 0){
-               filteredProducts = products.filter(product => product.title.includes(search));
-               
-           }else{
+              let filteredProducts = products.filter(product => product.title.includes(search));
+               if(freeShipping){
+                if(filteredProducts.filter(product => String(product.freeShipping) === Criteria.freeShipping).length > 0){
+                    filteredProducts = [ ...products.filter(product => String(product.freeShipping) === Criteria.freeShipping) ];
+                    console.log(filteredProducts);
+                    return filteredProducts;
+                }else{
+                 throw new NotFoundException(`Not results found on ${search} with free shipping`);
+                }
+            }else if(sale){
+                if(filteredProducts.filter(product => String(product.sale) === Criteria.sale).length > 0){
+                    filteredProducts = [ ...products.filter(product => String(product.sale) === Criteria.sale) ];
+                    console.log(filteredProducts);
+                    return filteredProducts;
+                }else{
+                 throw new NotFoundException(`Not results found for ${search} on sale`);
+                }
+            }  
+            return filteredProducts;
+           }else {
             throw new NotFoundException(`Not results found on ${search}`);
            }
-        } else{
+        } else {
             return products;
-        }
-        if(freeShipping){
-            if(filteredProducts.filter(product => String(product.freeShipping) === Criteria.freeShipping).length > 0){
-                filteredProducts = [ ...products.filter(product => String(product.freeShipping) === Criteria.freeShipping) ];
-                console.log(filteredProducts);
-                return filteredProducts;
-            }else{
-             throw new NotFoundException(`Not results found on ${search} with free shipping`);
-            }
-        }else if(sale){
-            if(filteredProducts.filter(product => String(product.sale) === Criteria.sale).length > 0){
-                filteredProducts = [ ...products.filter(product => String(product.sale) === Criteria.sale) ];
-                console.log(filteredProducts);
-                return filteredProducts;
-            }else{
-             throw new NotFoundException(`Not results found for ${search} on sale`);
-            }
         }   
-        
     }
 
     async getProductById(id: string):Promise<Product>{    
