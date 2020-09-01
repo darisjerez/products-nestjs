@@ -8,8 +8,13 @@ export class Utils {
         return combination.sort(()=>{return 0.5 - Math.random()}).slice(0, this.maxLengthCoupon).join('');
     }
 
-    parseDate(date):number {
+    parseDate(date): number {
         return Date.parse(date)
+    }
+
+    calulateDiscount(discount, productPrice): number{
+        const totalDiscount = (discount / 100) * productPrice;
+        return productPrice - totalDiscount;
     }
  
 }
