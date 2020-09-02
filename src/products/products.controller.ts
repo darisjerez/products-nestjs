@@ -45,6 +45,13 @@ export class ProductsController {
         return this.productsService.deleteProduct(id);
         
     }
+    @Get('/:id/:couponCode')
+    async applyDiscount(
+        @Param('id') id: string,
+        @Param('couponCode') couponCode: string
+    ): Promise<any>{
+        return this.productsService.applyDiscount(id, couponCode);
+    }
 
 }
 

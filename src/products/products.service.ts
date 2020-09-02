@@ -5,10 +5,12 @@ import { Model } from 'mongoose';
 import { CreateProductsDto } from '../dto/createProducts.dto';
 import { SearchCriteriaDto } from '../dto/searchCriteria.dto';
 import { Criteria } from './creteria.enum';
+import { CouponsService } from '../coupons/coupons.service';
+import { Utils } from '../utils/utils';
 
 @Injectable()
 export class ProductsService {
-    constructor(@InjectModel(Product.name) private ProductModel: Model<Product>){}
+    constructor(@InjectModel(Product.name) private ProductModel: Model<Product>, private couponService: CouponsService){}
 
     async createProduct(createProductDto: CreateProductsDto): Promise<Product>{
         const createdProduct = new this.ProductModel(createProductDto);
@@ -74,6 +76,23 @@ export class ProductsService {
         const product = await this.getProductById(id);
          await product.deleteOne();
         return { message: `Product with id ${id} was deleted`, status: "Success" };
+    }
+
+    async applyDiscount(id: string, couponCode: string): Promise<any>{
+        const product = await this.getProductById(id);
+        const coupon = await this.couponService.findCouponByCode(couponCode);
+        if(!coupon.expired){
+            if(coupon.timesUsed >= coupon.limitOfUses){
+                return { message: `Coupon ${couponCode} has reached maximum number of use`, product};
+            }
+            await this.couponService.updateTimesUsedOnCoupon(coupon);
+            const discountedPrice = new Utils().calulateDiscount(coupon.amount, product.price);
+            product.price = discountedPrice;
+            return product;
+        }else{
+            return { message: `Coupon ${couponCode} has expired`, product};
+        }
+
     }
 
     checkPropExists(data, target){
