@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber } from "class-validator";
+import { IsNotEmpty, IsNumber, IsBoolean } from "class-validator";
 
 export class CreateCouponDto {
 
@@ -18,5 +18,9 @@ export class CreateCouponDto {
     @IsNotEmpty()
     @IsNumber()
     expirationTime: number;
+
+    @IsNotEmpty()
+    @IsBoolean()
+    expired: boolean
 
 }

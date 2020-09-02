@@ -49,7 +49,7 @@ export class ProductsController {
     async applyDiscount(
         @Param('id') id: string,
         @Param('couponCode') couponCode: string
-    ): Promise<Product>{
+    ): Promise<any>{
         return this.productsService.applyDiscount(id, couponCode);
     }
 

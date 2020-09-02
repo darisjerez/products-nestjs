@@ -21,7 +21,6 @@ export class CouponsService {
     }
 
     async retrieveAllCoupons(): Promise<Coupon[]>{
-        this.deleteCouponByDate();
         return await this.CouponModel.find().exec();
     }
 
@@ -34,6 +33,19 @@ export class CouponsService {
     }
     @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
     async deleteCouponByDate(): Promise<void>{
-        await this.CouponModel.deleteMany({expirationTime: { $lt : Date.parse(new Date().toISOString())}})
+        await this.CouponModel.deleteMany({expirationTime: { $lt : Date.parse(new Date().toISOString())}});
+    }
+
+    async updateTimesUsedOnCoupon(coupon: Coupon): Promise<void>{
+        coupon.timesUsed += 1;
+        await coupon.save();
+    }
+
+    @Cron(CronExpression.EVERY_8_HOURS)
+    async updateExpiredProperty(coupon: Coupon): Promise<void>{
+        if(coupon.expirationTime <= Date.parse(new Date().toISOString())){
+            coupon.expired = true;
+            await coupon.save();
+        }
     }
 }

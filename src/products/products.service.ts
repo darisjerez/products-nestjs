@@ -78,15 +78,20 @@ export class ProductsService {
         return { message: `Product with id ${id} was deleted`, status: "Success" };
     }
 
-    async applyDiscount(id: string, couponCode: string): Promise<Product>{
+    async applyDiscount(id: string, couponCode: string): Promise<any>{
         const product = await this.getProductById(id);
         const coupon = await this.couponService.findCouponByCode(couponCode);
-        const discountedPrice = new Utils().calulateDiscount(coupon.amount, product.price);
-        product.price = discountedPrice;
-        
-        console.log(discountedPrice)
-        return product;
-
+        if(!coupon.expired){
+            if(coupon.timesUsed >= coupon.limitOfUses){
+                return { message: `Coupon ${couponCode} has reached maximum number of use`, product};
+            }
+            await this.couponService.updateTimesUsedOnCoupon(coupon);
+            const discountedPrice = new Utils().calulateDiscount(coupon.amount, product.price);
+            product.price = discountedPrice;
+            return product;
+        }else{
+            return { message: `Coupon ${couponCode} has expired`, product};
+        }
 
     }
 

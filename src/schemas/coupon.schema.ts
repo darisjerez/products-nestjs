@@ -21,6 +21,9 @@ export class Coupon extends Document {
     @Prop()
     expirationTime: number;
 
+    @Prop()
+    expired: boolean
+
 }
 
 export const CouponSchema = SchemaFactory.createForClass(Coupon);

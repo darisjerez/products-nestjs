@@ -9,7 +9,7 @@ export class Utils {
     }
 
     parseDate(date): number {
-        return Date.parse(date)
+        return Date.parse(date);
     }
 
     calulateDiscount(discount, productPrice): number{
