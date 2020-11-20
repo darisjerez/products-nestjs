@@ -27,7 +27,6 @@ export class ProductsService {
                if(freeShipping){
                 if(filteredProducts.filter(product => String(product.freeShipping) === Criteria.freeShipping).length > 0){
                     filteredProducts = [ ...products.filter(product => String(product.freeShipping) === Criteria.freeShipping) ];
-                    console.log(filteredProducts);
                     return filteredProducts;
                 }else{
                  throw new NotFoundException(`Not results found on ${search} with free shipping`);
@@ -90,9 +89,18 @@ export class ProductsService {
             product.price = discountedPrice;
             return product;
         }else{
-            return { message: `Coupon ${couponCode} has expired`, product};
+            return { message: `Coupon ${couponCode} has expired`, product };
         }
 
+    }
+
+    async updateProductQuantity(product: Product):Promise<void>{
+        product.quantity = product.quantity - 1;
+        await product.save();
+    }
+
+    async checkProductAvailability(product: Product): Promise<boolean>{
+       return (product.availability) ? true : false;
     }
 
     checkPropExists(data, target){
